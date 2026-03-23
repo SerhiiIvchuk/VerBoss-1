@@ -19,7 +19,8 @@ app.add_middleware(
 async def root():
     return {
         "message": "Бекенд для перекладу відео працює!",
-        "database_connected": DATABASE_URL.split("/")[-1] # Покаже назву файлу бази
+        "database_connected": DATABASE_URL.split("/")[-1], # Покаже назву файлу бази
+        "test-1": "just a code for a test-1 branch",
     }
 
 # ТУТ УЧНІ БУДУТЬ ДОДАВАТИ СВІЙ КОД:
