@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    container_name: translation_startup
+    ports:
+      - "8000:8000"
+    volumes:
+      # Прокидаємо локальну папку src у внутрішню папку /app
+      - ./src:/app
+      # База даних залишається окремо
+      - ./data:/app/data
+      # Захист venv
+      - /app/venv/
+    environment:
+      - PYTHONUNBUFFERED=1
+      # Важливо: база тепер відносно /app/data
+      - DATABASE_URL=sqlite:////app/data/startup.db
+    restart: unless-stopped

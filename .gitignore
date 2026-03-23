@@ -1,0 +1,50 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Важливо для нової структури: ігноруємо кеш всередині папки src
+src/**/__pycache__/
+src/**/*.pyc
+
+# --- Віртуальні середовища ---
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# --- FastAPI / Налаштування ---
+.env
+.flaskenv
+*.log
+auth_token.txt
+
+# --- Бази даних (SQLite) ---
+# Ігноруємо всі файли баз, але НЕ ігноруємо файл .gitkeep
+# Це дозволить папці data з'явитися у всіх учнів порожньою
+data/*
+!data/.gitkeep
+
+# --- Docker ---
+.docker/
+*.dockerlog
+
+# --- Редактори та ОС ---
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Захист від великих файлів ---
+*.bak
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.iso
+*.sql
