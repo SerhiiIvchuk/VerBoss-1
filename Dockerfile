@@ -19,6 +19,7 @@ COPY requirements.txt .
 
 # Встановлюємо бібліотеки Python
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip list
 
 # Копіюємо решту файлів проекту (код учнів, бази тощо)
 COPY src/ .
