@@ -8,6 +8,7 @@ from sqlalchemy.orm import declarative_base, Mapped, mapped_column
 from typing import Annotated
 # Отримуємо шлях до бази з перемінних оточення Docker (або ставимо дефолт)
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:////app/data/startup.db")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 engine = create_async_engine(DATABASE_URL)
 Base = declarative_base()
 app = FastAPI(title="Plugin Translation Startup")
@@ -21,7 +22,7 @@ SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["FRONTEND_URL"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
