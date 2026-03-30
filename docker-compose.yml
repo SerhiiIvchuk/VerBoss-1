@@ -17,4 +17,5 @@ services:
       - PYTHONUNBUFFERED=1
       # Важливо: база тепер відносно /app/data
       - DATABASE_URL=sqlite+aiosqlite:////app/data/startup.db
+      - FRONTEND_URL=http://localhost:5173
     restart: unless-stopped
