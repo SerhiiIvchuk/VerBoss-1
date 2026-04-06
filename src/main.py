@@ -2,17 +2,18 @@ import os
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
-from pydantic import BaseModel, EmailStr
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.orm import declarative_base, Mapped, mapped_column
 from typing import Annotated
+
+from models.user import user
+from database.database import Base
+from schemas.user import UserAddSchema
 # Отримуємо шлях до бази з перемінних оточення Docker (або ставимо дефолт)
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:////app/data/startup.db")
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 engine = create_async_engine(DATABASE_URL)
-Base = declarative_base()
 app = FastAPI(title="Plugin Translation Startup")
 # Створення сесії та генератору
 Session = async_sessionmaker(engine, expire_on_commit=False)
@@ -38,43 +39,23 @@ async def root():
         "test-1": "just a code for a test-1 branch",
     }
 # Створює датабазу при запуску бекенду (якщо немає)
-@app.on_event("startup")
-async def on_startup():
+@app.post("/create_data")
+async def create_data():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    return {"Data" : "Created"}
 
 # ТУТ УЧНІ БУДУТЬ ДОДАВАТИ СВІЙ КОД:
 # 1. Створення моделей (SQLAlchemy)
-class User(Base):
-    __tablename__ = "users"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    login: Mapped[str] = mapped_column(unique=True)
-    email: Mapped[str] = mapped_column(unique=True)
-    password: Mapped[str]
 # 2. Створення схем (Pydantic)
-class UserAddSchema(BaseModel):
-    login: str
-    email: EmailStr
-    password: str
 # 3. Ендпоінти (app.post("/translate") тощо)
 # 3.1 Отримання всіх юзерів
 @app.get("/get_all_users")
 async def get_all_users(session: SessionDep):
-    query = select(User)
+    query = select(user)
     res = await session.execute(query)
     return res.scalars().all()
 # 3.2 Додавання нового юзера
 @app.post("/add_new_user")
 async def add_new_user(user: UserAddSchema, session: SessionDep):
-    stmt = select(User).where(User.login == user.login)
-    res = await session.execute(stmt)
-    if res.scalar_one_or_none():
-        return {"User" : "Is already exists"}
-    new_user = User(
-        login = user.login,
-        email = user.email,
-        password = user.password
-    )
-    session.add(new_user)
-    await session.commit()
-    return {"User" : "Added"}
+    return {"Endpoint" : "Is working"}
