@@ -19,3 +19,9 @@ services:
       - DATABASE_URL=sqlite+aiosqlite:////app/data/startup.db
       - FRONTEND_URL=http://localhost:5173
     restart: unless-stopped
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    restart: always
+    ports:
+      - "80:80"
