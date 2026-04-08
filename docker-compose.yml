@@ -5,7 +5,7 @@ services:
     build: .
     container_name: translation_startup
     ports:
-      - "8000:8000"
+      - "8000"
     volumes:
       # Прокидаємо локальну папку src у внутрішню папку /app
       - ./src:/app
@@ -19,3 +19,14 @@ services:
       - DATABASE_URL=sqlite+aiosqlite:////app/data/startup.db
       - FRONTEND_URL=http://localhost:5173
     restart: unless-stopped
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: 
+                    
+      - backend
