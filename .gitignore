@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
+.env
 
 # Важливо для нової структури: ігноруємо кеш всередині папки src
 src/**/__pycache__/

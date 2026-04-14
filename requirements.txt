@@ -27,3 +27,6 @@ bcrypt==4.1.2
 # Валідація користувача
 authx
 typing
+authlib
+python-dotenv
+itsdangerous
