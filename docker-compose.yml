@@ -13,11 +13,8 @@ services:
       - ./data:/app/data
       # Захист venv
       - /app/venv/
-    environment:
-      - PYTHONUNBUFFERED=1
-      # Важливо: база тепер відносно /app/data
-      - DATABASE_URL=sqlite+aiosqlite:////app/data/startup.db
-      - FRONTEND_URL=http://localhost:5173
+    env_file:
+      - .env
     restart: unless-stopped
   nginx:
     image: nginx:latest

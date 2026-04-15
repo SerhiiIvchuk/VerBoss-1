@@ -2,15 +2,21 @@ import os
 from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from starlette.middleware.sessions import SessionMiddleware
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from typing import Annotated
 
+from dotenv import load_dotenv
+
+from auth.auth import router as auth_router
+
 from models.user import user
 from database.database import Base
 from schemas.user import UserAddSchema
 # Отримуємо шлях до бази з перемінних оточення Docker (або ставимо дефолт)
+load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:////app/data/startup.db")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 engine = create_async_engine(DATABASE_URL)
@@ -30,6 +36,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv("SESSION_SECRET")
+)
+
+app.include_router(auth_router)
 
 @app.get("/")
 async def root():
@@ -49,11 +61,6 @@ async def lifespan(app: FastAPI):
     yield
 
     await engine.dispose()
-
-# ТУТ УЧНІ БУДУТЬ ДОДАВАТИ СВІЙ КОД:
-# 1. Створення моделей (SQLAlchemy)
-# 2. Створення схем (Pydantic)
-# 3. Ендпоінти (app.post("/translate") тощо)
 
 
 # 3.1 Отримання всіх юзерів
