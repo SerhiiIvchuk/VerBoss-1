@@ -5,28 +5,19 @@ from contextlib import asynccontextmanager
 from starlette.middleware.sessions import SessionMiddleware
 
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from typing import Annotated
 
 from dotenv import load_dotenv
 
 from auth.auth import router as auth_router
 
-from models.user import user
-from database.database import Base
+from models.user import User
+from database.database import Base, engine, DATABASE_URL, SessionDep
 from schemas.user import UserAddSchema
+from auth.auth import get_current_user
 # Отримуємо шлях до бази з перемінних оточення Docker (або ставимо дефолт)
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:////app/data/startup.db")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
-engine = create_async_engine(DATABASE_URL)
 app = FastAPI(title="Plugin Translation Startup")
-# Створення сесії та генератору
-Session = async_sessionmaker(engine, expire_on_commit=False)
-async def get_session():
-    async with Session() as session:
-        yield session
-SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 # Корс для підключення бекенду. (FRONTEND_URL береться з docker-compose.yml)
 app.add_middleware(
@@ -66,7 +57,7 @@ async def lifespan(app: FastAPI):
 # 3.1 Отримання всіх юзерів
 @app.get("/get_all_users")
 async def get_all_users(session: SessionDep):
-    query = select(user)
+    query = select(User)
     res = await session.execute(query)
     return res.scalars().all()
 
@@ -84,3 +75,6 @@ async def get_user_ip(request: Request):
         "headers": dict(request.headers),
         "Base" : list(Base.metadata.tables.keys())
     }
+@app.get("/me")
+async def me(user=Depends(get_current_user), session: SessionDep = None):
+    return await session.get(User, user["sub"])

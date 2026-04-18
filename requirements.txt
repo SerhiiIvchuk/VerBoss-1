@@ -30,3 +30,4 @@ typing
 authlib
 python-dotenv
 itsdangerous
+jose
