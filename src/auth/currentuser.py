@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 
 SECRET_KEY = os.getenv("SESSION_SECRET")
-ALGORITHM = "HS256"
+ALGORITHM = os.getenv("ALGO")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login/google")
 

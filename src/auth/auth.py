@@ -9,8 +9,6 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from jose import jwt, JWTError
-
-from schemas.user import UserAddSchema
 from database.database import SessionDep
 from models.user import User
 from utils.jwt import create_access_token
@@ -18,7 +16,7 @@ from utils.jwt import create_access_token
 security = HTTPBearer()
 
 SECRET_KEY = os.getenv("SESSION_SECRET")
-ALGORITHM = "HS256"
+ALGORITHM = os.getenv("ALGO")
 
 
 router = APIRouter()
