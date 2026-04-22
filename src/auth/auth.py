@@ -1,11 +1,13 @@
 import os
+import json
+
 
 from authlib.integrations.starlette_client import OAuth
 
 from sqlalchemy import select
 
 from fastapi import APIRouter, Request, HTTPException, Depends
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from jose import jwt, JWTError
@@ -15,9 +17,10 @@ from utils.jwt import create_access_token
 
 security = HTTPBearer()
 
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 SECRET_KEY = os.getenv("SESSION_SECRET")
 ALGORITHM = os.getenv("ALGO")
-
+NGROK = os.getenv("NGROK_URL")
 
 router = APIRouter()
 
@@ -34,7 +37,7 @@ oauth.register(
 )
 @router.get("/login/google")
 async def login_google(request: Request):
-    redirect_uri = "https://sherill-carpellary-fulgently.ngrok-free.dev/auth/google"
+    redirect_uri = NGROK
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
@@ -66,10 +69,20 @@ async def auth_google(request: Request, session: SessionDep):
     
     access_token = create_access_token(db_user.id)
 
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+    payload = json.dumps({
+        "type" : "AUTH_SUCCESS",
+        "token" : access_token
+    })
+    
+    content = f"""
+    <script>
+        if (window.opener) {{
+            window.opener.postMessage({payload}, {json.dumps(FRONTEND_URL)})
+            window.close()
+        }}
+    </script>
+    """ 
+    return HTMLResponse(content=content)
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
     try:

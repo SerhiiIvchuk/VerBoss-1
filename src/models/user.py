@@ -1,4 +1,4 @@
-from sqlalchemy.orm import declarative_base, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from database.database import Base
 
 class User(Base):
