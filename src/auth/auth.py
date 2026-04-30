@@ -21,6 +21,7 @@ FRONTEND_URL = os.getenv("FRONTEND_URL")
 SECRET_KEY = os.getenv("SESSION_SECRET")
 ALGORITHM = os.getenv("ALGO")
 NGROK = os.getenv("NGROK_URL")
+EXTENSION_ID ="gkfpkmhlbplbjkibndejnjnolhgbbeac"               
 
 router = APIRouter()
 
@@ -38,7 +39,11 @@ oauth.register(
 @router.get("/login/google")
 async def login_google(request: Request):
     redirect_uri = NGROK
-    return await oauth.google.authorize_redirect(request, redirect_uri)
+    response = await oauth.google.authorize_redirect(request, redirect_uri)
+    # Додаємо магічний заголовок, який каже Ngrok пропустити сторінку-попередження
+    response.headers["ngrok-skip-browser-warning"] = "69420"
+    # return await oauth.google.authorize_redirect(request, redirect_uri)
+    return response
 
 
 @router.get("/auth/google")
@@ -66,23 +71,11 @@ async def auth_google(request: Request, session: SessionDep):
         session.add(db_user)
         await session.commit()
         await session.refresh(db_user)
-    
-    access_token = create_access_token(db_user.id)
 
-    payload = json.dumps({
-        "type" : "AUTH_SUCCESS",
-        "token" : access_token
-    })
-    
-    content = f"""
-    <script>
-        if (window.opener) {{
-            window.opener.postMessage({payload}, {json.dumps(FRONTEND_URL)})
-            window.close()
-        }}
-    </script>
-    """ 
-    return HTMLResponse(content=content)
+    internal_token = create_access_token(db_user.id)
+    chrome_callback_url = f"https://{EXTENSION_ID}.chromiumapp.org/?token={internal_token}"
+    return RedirectResponse(url=chrome_callback_url)
+
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
     try:
