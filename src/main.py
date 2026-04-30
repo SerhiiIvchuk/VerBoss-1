@@ -16,7 +16,10 @@ from schemas.user import UserAddSchema
 from auth.auth import get_current_user
 # Отримуємо шлях до бази з перемінних оточення Docker (або ставимо дефолт)
 load_dotenv()
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL",
+    "http://localhost:5173"
+)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
@@ -26,7 +29,12 @@ async def lifespan(app: FastAPI):
 
     await engine.dispose()
 
-app = FastAPI(title="Plugin Translation Startup", lifespan=lifespan)
+app = FastAPI(
+    title="Plugin Translation Startup",
+    lifespan=lifespan,
+    docs_url="/docs",
+    openapi_url="/openapi.json"
+)
 
 # Корс для підключення бекенду. (FRONTEND_URL береться з docker-compose.yml)
 app.add_middleware(
