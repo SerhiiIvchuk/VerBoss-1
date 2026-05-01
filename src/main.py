@@ -9,6 +9,7 @@ from sqlalchemy import select
 from dotenv import load_dotenv
 
 from auth.auth import router as auth_router
+from ai.stt import router as auth_router
 
 from models.user import User
 from database.database import Base, engine, DATABASE_URL, SessionDep

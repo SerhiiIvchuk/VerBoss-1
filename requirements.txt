@@ -31,3 +31,5 @@ authlib
 python-dotenv
 itsdangerous
 jose
+openai-whisper
+ffmpeg
