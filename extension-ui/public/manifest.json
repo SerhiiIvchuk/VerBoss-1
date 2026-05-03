@@ -1,7 +1,17 @@
 {
     "manifest_version": 3,
     "name": "VerBoss",
-    "version": "1.0",
+    "version": "1.0.0",
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArB3f6wyS5G7kB5Orum9sqxH2XaVBxpk0V2OCK6C86/F/kfSo3hoBaHZ/i8JxAhj2sgh1rQC5fKMWpXr9cQQG3ZqxkW58DC5E/D59KhnRC0ZkwDW3H6TMumoo2lb8EgNlclEYF4EwiWoAeXcLnCXKmoQAO48bQ+mP2oAty0j8X0jGZeuLsUYNwao5XTq4OOKfhCFKMHmoqRsywZe1b8+X5PayhAKl7JC0ThKkumZicMli0o90kzUCH2QZINVGlQBV0gHMQayszcp0UMTKcgJorCbOOaQOmdoUJ3H5cIvddPnKwg13wlr6n2CaUgQVtBpu0BjHVjkYLmItUj6OjQFRDQIDAQAB",
+    "permissions": [
+        "storage", 
+        "activeTab",
+        "notifications",
+        "identity"
+    ],
+    "host_permissions": [
+        "https://*.ngrok-free.dev/*"
+    ],
     "action": {
         "default_popup": "index.html",
         "default_icon": {
@@ -9,5 +19,8 @@
             "48": "images/icon48.png",
             "128": "images/icon128.png"
         }
-    }
+    },
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'"
+    } 
 }

@@ -1,14 +1,17 @@
 <script setup>
-import TestModuleOne from './components/TestModul.vue';
+// import TestModuleOne from "./components/TestModul.vue";
+import VerBoss from "./components/VerBoss.vue";
 // import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
-  <!-- <HelloWorld /> -->
-  <h1>I am VerBoss on Vue</h1>
-  <TestModuleOne />
+  <div>
+    <!-- <HelloWorld /> -->
+    <h1>I am VerBoss on Vue 28.04.26</h1>
+    <VerBoss />
+  </div>
+  <!-- <TestModuleOne /> -->
 </template>
-
 
 <!--! npm run build -- --watch 
 C:\Users\User>cd GitClone

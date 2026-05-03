@@ -4,3 +4,8 @@
  ви будете імпортувати їх без префікса src.
 Наприклад: from models.user import User, а не from src.models.user.... 
 Це тому, що всередині контейнера ми зробили WORKDIR /app і скопіювали вміст src прямо туди.
+2. Під час підготовки до хостингу:
+- В manifest.json виправити рядки 
+  "host_permissions": [
+        "https://*.ngrok-free.dev/*"
+    ],
