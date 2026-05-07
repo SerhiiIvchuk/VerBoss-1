@@ -11,6 +11,9 @@
     <div v-else>
       <p>Вітаємо, залогінено!</p>
       <p>Ваш токен: {{ accessToken }}</p>
+      <button @click="startTranslation" class="btn-start">
+        Почати захоплення
+      </button>
       <button @click="logout" style="margin-top: 10px">Вийти</button>
     </div>
   </div>
@@ -78,7 +81,26 @@ export default {
     const increment = () => {
       count.value++;
     };
+    const startTranslation = () => {
+      // Перевіряємо, чи ми в середовищі розширення, щоб не було помилок при розробці
+      if (typeof chrome !== "undefined" && chrome.tabs) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const activeTab = tabs[0];
 
+          chrome.runtime.sendMessage(
+            {
+              type: "START_TRANSCRIPTION",
+              tabId: activeTab.id,
+            },
+            (response) => {
+              console.log("Відповідь від фону:", response);
+            },
+          );
+        });
+      } else {
+        console.error("Chrome API не знайдено. Ви запустіть це як розширення?");
+      }
+    };
     // Життєвий цикл: Монтування
     onMounted(async () => {
       if (typeof chrome !== "undefined" && chrome.storage) {
@@ -99,6 +121,7 @@ export default {
       authUrl,
       handleAuth: login,
       logout,
+      startTranslation,
     };
   },
 };
