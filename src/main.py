@@ -9,7 +9,7 @@ from sqlalchemy import select
 from dotenv import load_dotenv
 
 from auth.auth import router as auth_router
-from ai.stt import router as auth_router
+from ai.stt import router as stt_router
 
 from models.user import User
 from database.database import Base, engine, DATABASE_URL, SessionDep
@@ -45,6 +45,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(stt_router)
 
 @app.get("/")
 async def root():
