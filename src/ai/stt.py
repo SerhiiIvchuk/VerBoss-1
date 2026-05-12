@@ -6,7 +6,6 @@ import os
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 
-
 model = WhisperModel(
     "small",
     device="cpu",
@@ -40,35 +39,48 @@ async def transcribe_async(path: str):
         lambda: transcribe_sync(path)
     )
 
+
 @router.websocket("/ws/stt")
 async def websocket_stt(ws: WebSocket):
     await ws.accept()
 
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
-    path = tmp.name
+    tmp = None
+    path = None
+
     try:
         while True:
-            data = await ws.receive_bytes()
-
-            # !!! Тут потрібно щоб фронт надсилав __start__ і __end__ для того щоб ШІ розуміла !!!
-            
-            
-            if data == b"__end__":
-
-                text = await transcribe_async(path)
-
-                await ws.send_json(text)
-
-                await ws.close()
-                tmp.close()
+            try:
+                message = await ws.receive()
+            except RuntimeError:
                 break
+            
+            if "text" in message:
+                if message["text"] == "START":
+                    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+                    path = tmp.name
 
-            tmp.write(data)
-            tmp.flush()
+                if message["text"] == "END":
+                    tmp.close()
+
+                    text = await transcribe_async(path)
+                    await ws.send_json(text)
+
+                    tmp = None
+                    path = None
+
+                    continue
+            elif "bytes" in message:
+                if tmp:
+                    tmp.write(message["bytes"])
+                    tmp.flush()
+
     except WebSocketDisconnect:
-        pass
-
+        if tmp:
+            tmp.close()
 
     finally:
-        if os.path.exists(path):
-            os.remove(path)
+        try:
+            if path is not None and os.path.exists(path):
+                os.remove(path)
+        except Exception:
+            pass
