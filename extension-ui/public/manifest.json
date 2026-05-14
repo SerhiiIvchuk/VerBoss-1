@@ -7,9 +7,29 @@
         "storage",
         "activeTab",
         "notifications",
-        "identity"
+        "identity",
+        "scripting",
+        "tabs",
+        "tabCapture",
+        "offscreen"
+    ],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.youtube.com/*",
+                "http://127.0.0.1:5500/*"
+            ],
+            "js": [
+                "content.js"
+            ]
+        }
     ],
     "host_permissions": [
+        "http://127.0.0.1:5500/*",
         "https://*.ngrok-free.dev/*"
     ],
     "action": {

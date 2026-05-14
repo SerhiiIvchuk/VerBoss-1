@@ -7,7 +7,7 @@ import VerBoss from './components/VerBoss.vue';
 <template>
   <!-- <HelloWorld /> -->
   <!-- <TestModuleOne /> -->
-  <h1>I am VerBoss on Vue 28</h1>
+  <!-- <h1>I am VerBoss on Vue 28</h1> -->
   <VerBoss />
 </template>
 
