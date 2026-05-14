@@ -1,27 +1,74 @@
 <template>
-    <div>
-        <h3 style="color: green">{{ message }}</h3>
-        <p>Лічильник: {{ count }} Щось оновити редірект</p>
-        <button @click="increment">Додати</button>
+    <div class="ver-header">
+        <div class="ver-header-component">
+            <div class="logo">
+                <img :src="logo" alt="Logo">
+            </div>
+            <div class="ver-header-login">
+                <div v-if="!isAuthenticated">
+                    <button @click="handleAuth">Увійти через Google</button>
+                </div>
 
-        <div v-if="!isAuthenticated">
-            <button @click="handleAuth">Увійти через Google</button>
-        </div>
-
-        <div v-else>
-            <p>Вітаємо, залогінено!</p>
-            <p>Ваш токен: {{ accessToken }}</p>
-            <button @click="logout" style="margin-top: 10px">Вийти</button>
+                <div v-else>
+                    <button @click="logout" style="margin-top: 10px">Вийти</button>
+                </div>
+            </div>
         </div>
     </div>
+    <!-- Кнопка старту -->
+    <div v-if="!showTranslationProgress" class="btn-start-wrapper">
+        <button  @click="startTranslation" class="btn-start">
+            Почати захоплення
+        </button>
+    </div>
+
+    <!-- Блок прогресу -->
+    <div v-if="showTranslationProgress" class="translation-progress">
+        <h2 class="translation-title">Перекладаю аудіо...</h2>
+        <p class="translation-time">12s</p>
+
+        <!-- Загальний прогрес -->
+        <div class="main-progress-wrapper">
+            <div class="main-progress-fill"></div>
+            <span class="main-progress-percent">20%</span>
+        </div>
+
+        <!-- Оригінал -->
+        <div class="audio-slider">
+            <span class="audio-label">Оригінал</span>
+
+            <input type="range" min="0" max="100" v-model="originalVolume" class="range-slider" />
+
+            <span class="audio-percent">{{ originalVolume }}%</span>
+        </div>
+
+        <!-- Переклад -->
+        <div class="audio-slider">
+            <span class="audio-label">Переклад</span>
+
+            <input type="range" min="0" max="100" v-model="translatedVolume" class="range-slider" />
+
+            <span class="audio-percent">{{ translatedVolume }}%</span>
+        </div>
+    </div>
+
 </template>
 <script>
+import logo from "../assets/logo.svg";
 import { ref, onMounted } from "vue";
 
 export default {
     name: "VerBoss",
+    data() {
+        return {
+            logo,
+        };
+    },
 
     setup() {
+        const originalVolume = ref(100);
+        const translatedVolume = ref(100);
+        const showTranslationProgress = ref(false);
         const message = "I am text of VerBoss";
         const count = ref(0);
         const isAuthenticated = ref(false);
@@ -79,6 +126,29 @@ export default {
             count.value++;
         };
 
+        const startTranslation = () => {
+            // Показуємо блок прогресу
+            showTranslationProgress.value = true;
+            // Перевіряємо, чи ми в середовищі розширення, щоб не було помилок при розробці
+            if (typeof chrome !== "undefined" && chrome.tabs) {
+                chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                    const activeTab = tabs[0];
+
+                    chrome.runtime.sendMessage(
+                        {
+                            type: "START_TRANSCRIPTION",
+                            tabId: activeTab.id,
+                        },
+                        (response) => {
+                            console.log("Відповідь від фону:", response);
+                        },
+                    );
+                });
+            } else {
+                console.error("Chrome API не знайдено. Ви запустіть це як розширення?");
+            }
+        };
+
         // Життєвий цикл: Монтування
         onMounted(async () => {
             if (typeof chrome !== "undefined" && chrome.storage) {
@@ -91,6 +161,7 @@ export default {
         });
 
         return {
+            logo,
             message,
             count,
             increment,
@@ -99,14 +170,13 @@ export default {
             authUrl,
             handleAuth: login,
             logout,
+            startTranslation,
+            showTranslationProgress,
+            originalVolume,
+            translatedVolume,
         };
     },
 };
 </script>
 
-<style scoped>
-/* Стилі можна винести сюди, щоб не захаращувати HTML */
-h3 {
-    font-family: sans-serif;
-}
-</style>
+<style scoped></style>
