@@ -7,7 +7,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 
 model = WhisperModel(
-    "small",
+    "small.en",
     device="cpu",
     compute_type="int8"
 )
