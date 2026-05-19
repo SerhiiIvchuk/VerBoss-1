@@ -33,3 +33,4 @@ itsdangerous
 jose
 faster-whisper
 ffmpeg
+gradio_client
