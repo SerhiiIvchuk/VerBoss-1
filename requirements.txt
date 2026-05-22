@@ -34,3 +34,4 @@ jose
 faster-whisper
 ffmpeg
 gradio_client
+deep_translator

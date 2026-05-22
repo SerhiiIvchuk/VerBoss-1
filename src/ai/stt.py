@@ -1,10 +1,15 @@
 from concurrent.futures import ThreadPoolExecutor
+
 from faster_whisper import WhisperModel
+
 import tempfile
 import asyncio
 import os
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+from ai.trasnlate import Translate
+from ai.tts import Verbalize, TextToSpeech
 
 model = WhisperModel(
     "small.en",
@@ -60,13 +65,23 @@ async def websocket_stt(ws: WebSocket):
                     path = tmp.name
 
                 if message["text"] == "END":
+                    if tmp is None:
+                        continue
                     tmp.close()
-
-                    text = await transcribe_async(path)
-                    await ws.send_json(text)
-
-                    tmp = None
-                    path = None
+                    print(f"Transcribing {path}...")
+                    try:
+                        result = await transcribe_async(path)
+                        print("2")
+                        translated = await Translate(result["text"])
+                        print("3")
+                        verbalized_text = await Verbalize(translated)
+                        texttospeech = await TextToSpeech(verbalized_text)
+                        await ws.send_bytes(texttospeech)
+                    except Exception as e:
+                        print(f"Error: {e}")
+                    finally:
+                        tmp = None
+                        path = None
 
                     continue
             elif "bytes" in message:
