@@ -30,7 +30,7 @@
     </div>
     <!-- Login -->
 
-    <div class="ver-nadFooter-login">
+    <!-- <div class="ver-nadFooter-login">
         <div v-if="!isAuthenticated">
             <button @click="handleAuth">Увійти через Google</button>
         </div>
@@ -41,7 +41,7 @@
         <!-- <div v-else>
             <button @click="logout" style="margin-top: 10px">Вийти</button>
         </div> -->
-    </div>
+    </div> -->
 
     <!-- Кнопка старту -->
     <!-- <div v-if="!showTranslationProgress" class="btn-start-wrapper">
@@ -144,7 +144,7 @@ export default {
                             console.log("Відповідь від фону:", response);
                         },
                     );
-                });
+                }, 1000);
             } else {
                 console.error("Chrome API не знайдено. Ви запустіть це як розширення?");
             }
