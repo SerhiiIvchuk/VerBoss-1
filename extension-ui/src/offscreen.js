@@ -7,8 +7,6 @@ let socket = null; // NEW
 let audioBuffer = []; // NEW: Масив для накопичення даних між відправками
 const SAMPLE_RATE = 16000; // NEW: Частота, яку "любить" Whisper
 
-// NEW: Функція для створення заголовка WAV (робить шматок самодостатнім файлом)
-// МОДИФІКОВАНА ФУНКЦІЯ: Оптимізована для чистого звуку
 function encodeWAV(samples) {
     let buffer = new ArrayBuffer(44 + samples.length * 2);
     let view = new DataView(buffer);
@@ -68,12 +66,37 @@ function writeAudioData(view, offset, input) {
     }
 }
 
+// NEW: Емуляція отримання тестового 50-секундного файлу. 
+// Коли прийде фінальний бек, ця функція буде викликатися по події socket.onmessage замість транскрипції.
+function getTestUkrainianAudio() {
+  // Повертаємо шлях до локального тестового файлу, що лежить у папці розширення
+  return chrome.runtime.getURL('space_ua.mp3');
+}
+
 chrome.runtime.onMessage.addListener(async (message) => {
     if (message.target !== 'offscreen') return;
 
     if (message.type === 'START_CAPTURE') {
         connectWebSocket(); // NEW: Підключаємо сокет при старті
         startAudioWorklet(message.data.streamId);
+        // // NEW: Одразу повідомляємо сторінку, що у нас є готова доріжка перекладу (поки що тестова)
+        // chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+        // if (tabs[0]) {
+        //     chrome.runtime.sendMessage({
+        //     type: "TRANSLATED_AUDIO_READY",
+        //     target: "content",
+        //     audioUrl: getTestUkrainianAudio()
+        //     });
+        // }
+        // });
+        // FIXED: Офскрін не має доступу до chrome.tabs.
+        // Надсилаємо повідомлення у загальну шину розширення, де його успішно перехопить content_script.js
+        chrome.runtime.sendMessage({
+            type: "TRANSLATED_AUDIO_READY",
+            target: "content",
+            audioUrl: getTestUkrainianAudio()
+        });
+        console.log("Offscreen: Відправлено сигнал TRANSLATED_AUDIO_READY в контент скрипт.");
     } else if (message.type === 'PAUSE_CAPTURE') {
         isPaused = true;
         console.log("Offscreen: Захоплення призупинено (PAUSE)");
