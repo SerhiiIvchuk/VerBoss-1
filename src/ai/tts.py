@@ -1,25 +1,24 @@
-from gradio_client import Client
-import asyncio
+import azure.cognitiveservices.speech as speechsdk
 
-client = Client("patriotyk/styletts2-ukrainian")
+speech_config = speechsdk.SpeechConfig(
+    subscription="YourSpeechResourceKey",
+    region="eastus"
+)
 
-async def Verbalize(texts: str):
-    result = client.predict(
-        text=texts,
-        api_name="/verbalize"
-    )
-    return result
+# Вказати голос (для української мови)
+speech_config.speech_synthesis_voice_name = "uk-UA-PolinaNeural"
 
-async def TextToSpeech(texts: str):
-    loop = asyncio.get_event_loop()
-    
-    path = await loop.run_in_executor(None, lambda: client.predict(
-        model_name="multi",
-        text=texts,
-        speed=1,
-        voice_name="Артем Окороков",
-        api_name="/synthesize"
-    ))
-    
-    with open(path, "rb") as f:
-        return f.read()
+# Вивести у файл
+audio_config = speechsdk.audio.AudioOutputConfig(filename="output.wav")
+
+synthesizer = speechsdk.SpeechSynthesizer(
+    speech_config=speech_config,
+    audio_config=audio_config
+)
+
+result = synthesizer.speak_text_async("Привіт, це тест!").get()
+
+if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+    print("Успішно!")
+elif result.reason == speechsdk.ResultReason.Canceled:
+    print(f"Помилка: {result.cancellation_details.error_details}")

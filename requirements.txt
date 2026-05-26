@@ -33,5 +33,5 @@ itsdangerous
 jose
 faster-whisper
 ffmpeg
-gradio_client
 deep_translator
+azure-cognitiveservices-speech

@@ -9,7 +9,6 @@ import os
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from ai.trasnlate import Translate
-from ai.tts import Verbalize, TextToSpeech
 
 model = WhisperModel(
     "small.en",
