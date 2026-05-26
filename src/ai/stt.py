@@ -1,42 +1,26 @@
-from concurrent.futures import ThreadPoolExecutor
-from faster_whisper import WhisperModel
 import tempfile
 import asyncio
 import os
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from groq import Groq
 
-# Ініціалізація моделі
-model = WhisperModel(
-    "small",
-    # "tiny",
-    device="cpu",
-    compute_type="int8"
-)
+API_KEY = os.getenv("API_TOKEN")
 
-executor = ThreadPoolExecutor(max_workers=2)
+client = Groq(api_key=API_KEY)
 
 router = APIRouter()
 
-def transcribe_sync(path: str):
-    segments, info = model.transcribe(
-        path,
-        beam_size=2,
-        vad_filter=True
-    )
-    
-    text = " ".join(seg.text for seg in segments).strip()
-    
-    return {
-        "text": text,
-        "language": info.language
-    }
-
 async def transcribe_async(path: str):
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(
-        executor,
-        lambda: transcribe_sync(path)
-    )
+    def _transcribe():
+        with open(path, "rb") as f:
+            transcription = client.audio.transcriptions.create(
+                file=f,
+                model="whisper-large-v3",
+                language="en"
+            )
+        return {"text": transcription.text}
+
+    return await asyncio.to_thread(_transcribe)
 
 @router.websocket("/ws/stt")
 async def websocket_stt(ws: WebSocket):
@@ -89,17 +73,26 @@ async def websocket_stt(ws: WebSocket):
                 tmp.write(data)
                 tmp_path = tmp.name
 
-            # NEW: Транскрибуємо пакет відразу (не чекаючи __end__)
-            result = await transcribe_async(tmp_path)
+                if message["text"] == "END":
+                    if tmp is None:
+                        continue
+                    tmp.close()
 
-            # NEW: Видаляємо тимчасовий файл після обробки
-            if os.path.exists(tmp_path):
-                os.remove(tmp_path)
+                    try:
+                        text = await transcribe_async(path)
+                        await ws.send_json(text)
+                    except Exception as e:
+                        print(f"Error: {e}")
+                        await ws.send_json({"error": str(e)})
+                    finally:
+                        tmp = None
+                        path = None
 
-            # NEW: Відправляємо результат, якщо Whisper щось почув
-            if result["text"]:
-                print(f"[{result['language']}]: {result['text']}")
-                await ws.send_json(result)
+                    continue
+            elif "bytes" in message:
+                if tmp:
+                    tmp.write(message["bytes"])
+                    tmp.flush()
 
     except WebSocketDisconnect:
         print("--- [WS] Disconnected ---") # NEW
