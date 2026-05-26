@@ -22,25 +22,25 @@ async def transcribe_async(path: str):
 
     return await asyncio.to_thread(_transcribe)
 
+
 @router.websocket("/ws/stt")
 async def websocket_stt(ws: WebSocket):
     await ws.accept()
-    
-    print("--- [WS] Connected ---") 
+
+    tmp = None
+    path = None
 
     try:
         while True:
+            try:
+                message = await ws.receive()
+            except RuntimeError:
+                break
             
-            data = await ws.receive_bytes()
-             
-            message = await ws.receive_text()
-            if not data: 
-                continue 
-            
-
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
-                tmp.write(data)
-                tmp_path = tmp.name
+            if "text" in message:
+                if message["text"] == "START":
+                    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+                    path = tmp.name
 
                 if message["text"] == "END":
                     if tmp is None:
@@ -58,12 +58,18 @@ async def websocket_stt(ws: WebSocket):
                         path = None
 
                     continue
-                elif "bytes" in message:
-                    if tmp:
-                        tmp.write(message["bytes"])
-                        tmp.flush()
+            elif "bytes" in message:
+                if tmp:
+                    tmp.write(message["bytes"])
+                    tmp.flush()
 
     except WebSocketDisconnect:
-        print("--- [WS] Disconnected ---")
-    except Exception as e: 
-        print(f"--- [WS] Error: {e} ---")
+        if tmp:
+            tmp.close()
+
+    finally:
+        try:
+            if path is not None and os.path.exists(path):
+                os.remove(path)
+        except Exception:
+            pass
