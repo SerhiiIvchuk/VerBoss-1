@@ -4,10 +4,12 @@
 }
 
 :root {
-  --background-fon-modal: #0c0a29;
-  --background-header-modal: #0a0920;
-  --background-btn-header: #1d1b3a;
-  --color-btn-text-header: #ffffff;
+  --background-fon-modal: #0f1a17;
+  /* /* --background-header-modal: #0a0920; */
+  --background-btn-nadFooter: #1e7a57;
+  --color-btn-text-login: #e6f1ec;
+  --color-text-header: #5f6f68;
+  --color-solid-bottom-header: #145a4169;
 }
 
 body {
@@ -18,147 +20,136 @@ body {
 }
 
 .ver-header {
-  height: 55px;
-  background: var(--background-header-modal);
-  border-bottom: 1px solid var(--background-btn-header);
+  height: 35px;
+  /* border-bottom: 1px solid var(--background-btn-header); */
+  border-bottom: 1px solid var(--color-solid-bottom-header);
 }
 
 .ver-header-component {
   display: flex;
   justify-content: space-between;
-  padding: 10px;
+  padding-top: 5px;
+  padding-left: 15px;
 }
 
-.ver-header-component .ver-header-login button {
-  width: 106px;
-  height: 23px;
-  border: none;
-  border-radius: 5px;
-  /*=============================== */
-  font-family: "Akatab";
-  font-weight: 400;
-  font-style: normal;
-  font-size: 10px;
-  line-height: 16px;
-  letter-spacing: 0px;
-  background: var(--background-btn-header);
-  color: var(--color-btn-text-header);
-}
-
-/* ============== */
-.translation-progress {
-  padding-left: 17px;
-}
-
-.translation-title {
-  color: var(--color-btn-text-header);
-  /*!  Додай шрифффффффффффффффффффффффт */
-  font-family: "Akatab";
-  font-weight: 400;
-  font-style: Regular;
-  font-size: 16px;
-  line-height: 16px;
-  letter-spacing: 0px;
-  margin-top: 12px;
-}
-
-.translation-time {
-  font-family: "Akatab";
-  font-weight: 400;
-  font-style: Regular;
-  font-size: 10px;
-  line-height: 16px;
-  letter-spacing: 0px;
-  color: var(--color-btn-text-header);
-  margin-left: 20px;
-}
-
-.main-progress-wrapper {
-  position: relative;
-  width: 320px;
-  height: 10px;
-  background: #2b2948;
-  border-radius: 999px;
-  margin-bottom: 20px;
-}
-
-.main-progress-fill {
-  width: 20%;
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(to right, #6ec6ff, #b030b0);
-}
-
-.main-progress-percent {
-  position: absolute;
-  right: 0;
-  top: -24px;
-  color: #ffffff;
-  font-size: 14px;
-}
-
-.audio-slider {
+.logo {
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
-  padding: 10px;
-  background: #1a1738;
-  width: 300px;
-  height: 15px;
-  opacity: 1;
-  border-radius: 5px;
+  gap: 5px;
 }
 
-.audio-label {
-  width: 46px;
-  height: 14px;
-  opacity: 1;
-  color: var(--color-btn-text-header);
+.logo h1 {
+  /* ! text-shrupht */
+  font-family: "Inter";
+  font-weight: 700;
+  font-style: Bold;
   font-size: 14px;
-  font-family: "Akatab";
+  line-height: 16px;
+  letter-spacing: 0%;
+  color: var(--color-text-header);
+}
+
+/*! ====================== */
+
+.ver-hero-Login {
+  display: flex;
+  gap: 15px;
+  padding-top: 10px;
+  padding-left: 15px;
+}
+
+.ver-hero-Login-img__lock {
+  width: 50px;
+  height: 50px;
+}
+
+.ver-hero-login-text h2 {
+  font-family: "Inter";
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0%;
+  color: var(--color-btn-text-login);
+}
+
+.ver-hero-login-text h3 {
+  font-family: "Inter";
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 8px;
+  line-height: 16px;
+  letter-spacing: 0%;
+  color: var(--color-text-header);
+}
+
+/* ======================= */
+
+.ver-centerInformation-notActiveMova {
+  padding-top: 5px;
+  padding-left: 15px;
+}
+
+.ver-centerInformation-notActiveMova h2 {
+  padding-top: 5px;
+  font-family: "Inter";
   font-weight: 400;
   font-style: Regular;
   font-size: 10px;
-  line-height: 16px;
-  letter-spacing: 0px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: var(--color-btn-text-login);
 }
 
-.audio-percent {
-  color: var(--color-btn-text-header);
-  font-size: 12px;
-  min-width: 36px;
-  text-align: right;
-  /*  */
-  font-family: "Akatab";
+.terms-wrapper {
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.terms-wrapper .terms-label span {
+  padding-right: 5px;
+  font-family: "Inter";
   font-weight: 400;
   font-style: Regular;
-  font-size: 7px;
-  line-height: 16px;
-  letter-spacing: 0px;
+  font-size: 10px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: var(--color-btn-text-login);
 }
 
-.range-slider {
-  flex: 1;
+.terms-checkbox {
+  width: 10px;
+  height: 10px;
   cursor: pointer;
-  width: 206px;
-  height: 4px;
-  opacity: 1;
-  border-radius: 99px;
-  background: linear-gradient(90deg, #46145c 79.33%, #6a2d85 100%);
 }
-/*  */
-.btn-start-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
+/* Клас помилки, який Vue автоматично додасть/прибере */
+.has-error .terms-label span {
+  color: #ff4d4d;
+  animation: flash-error 0.5s ease-in-out infinite alternate;
 }
 
-.btn-start-wrapper .ac{
-  display: none;
+@keyframes flash-error {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 0px rgba(255, 77, 77, 0);
+  }
+  100% {
+    transform: scale(1.02);
+    text-shadow: 0 0 8px rgba(255, 77, 77, 0.6);
+  }
 }
 
-.btn-start {
-  width: 106px;
+/* Lodin */
+
+.ver-nadFooter-login {
+  width: 100%;
+  padding-top: 15px;
+  padding-left: 15px;
+}
+
+.ver-nadFooter-login button {
+  width: 317px;
   height: 23px;
   border: none;
   border-radius: 5px;
@@ -169,6 +160,100 @@ body {
   font-size: 10px;
   line-height: 16px;
   letter-spacing: 0px;
-  background: var(--color-btn-text-header);
-  color: var(--background-btn-header);
+  background: var(--background-btn-nadFooter);
+  color: var(--color-btn-text-login);
+}
+
+/* Recklames */
+.ver-footer-recklames {
+  width: 100%;
+  padding-top: 10px;
+  padding-left: 15px;
+}
+.ver-footer-recklames h3 {
+  padding-right: 5px;
+  font-family: "Inter";
+  font-weight: 200;
+  font-style: Extra Light;
+  font-size: 8px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: var(--color-btn-text-login);
+}
+
+.ver-footer-recklames a {
+  color: var(--color-text-header);
+  text-decoration: none;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 8px;
+}
+
+.ver-footer-recklames a:hover {
+  color: var(--background-btn-nadFooter);
+  text-decoration: none;
+  font-weight: 500;
+  font-style: Regular;
+  font-size: 10px;
+}
+
+/*! Panel 2 */
+
+.panel-2-hero-img__worldPanel2 {
+  padding-top: 15px;
+  padding-left: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-2-hero-img__worldPanel2 h2 {
+  font-family: "Inter";
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 12px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: var(--color-btn-text-login);
+}
+
+/* ActiveMova */
+
+.panel-2-main-ActiveMova {
+  padding-top: 5px;
+  padding-left: 15px;
+}
+
+.panel-2-main-ActiveMova-Zmova, .panel-2-main-ActiveMova-Namova, .panel-2-main-radio-voice {
+  padding-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px; 
+}
+
+.panel-2-main-ActiveMova-Zmova h2, .panel-2-main-ActiveMova-Namova h2, .panel-2-main-radio-voice h2 {
+  font-family: "Inter";
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 11px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: var(--color-btn-text-login);
+}
+
+.panel-2-main-ActiveMova-Zmova select, .panel-2-main-ActiveMova-Namova select {
+  width: 100px;
+  height: 20px;
+  border: 1px solid var(--color-solid-bottom-header);
+  border-radius: 5px;
+  background-color: var(--background-fon-modal);
+  color: var(--color-btn-text-login);
+  padding: 4px 8px;
+  appearance: none;
+  --webkit-appearance: none;
+  --moz-appearance: none;
+  cursor:pointer;
+  font-family: "Inter";
+  font-weight: 400;
+  font-size: 10px;
 }

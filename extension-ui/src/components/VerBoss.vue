@@ -3,58 +3,101 @@
         <div class="ver-header-component">
             <div class="logo">
                 <img :src="logo" alt="Logo">
-            </div>
-            <div class="ver-header-login">
-                <div v-if="!isAuthenticated">
-                    <button @click="handleAuth">Увійти через Google</button>
-                </div>
-
-                <div v-else>
-                    <button @click="logout" style="margin-top: 10px">Вийти</button>
-                </div>
+                <h1>{{ nameLogo }}</h1>
             </div>
         </div>
     </div>
-    <!-- Кнопка старту -->
-    <div v-if="!showTranslationProgress" class="btn-start-wrapper">
-        <button  @click="startTranslation" class="btn-start">
-            Почати захоплення
-        </button>
-    </div>
 
-    <!-- Блок прогресу -->
-    <div v-if="showTranslationProgress" class="translation-progress">
-        <h2 class="translation-title">Перекладаю аудіо...</h2>
-        <p class="translation-time">12s</p>
-
-        <!-- Загальний прогрес -->
-        <div class="main-progress-wrapper">
-            <div class="main-progress-fill"></div>
-            <span class="main-progress-percent">20%</span>
+    <div v-if="currentPanel === 1">
+        <div class="ver-hero-Login">
+            <div class="ver-hero-Login-img__lock">
+                <img :src="lockLogin" alt="Lock Login">
+            </div>
+            <div class="ver-hero-login-text">
+                <h2>Увійдіть для перекладу</h2>
+                <h3>Авторизація через Google дозволить безкоштовно переглядати відео на YouTube</h3>
+            </div>
         </div>
 
-        <!-- Оригінал -->
-        <div class="audio-slider">
-            <span class="audio-label">Оригінал</span>
-
-            <input type="range" min="0" max="100" v-model="originalVolume" class="range-slider" />
-
-            <span class="audio-percent">{{ originalVolume }}%</span>
+        <div class="ver-centerInformation-notActiveMova">
+            <h2>З мови: Блоковано(Sing in)</h2>
+            <h2>На мову: Блоковано(Sing in)</h2>
+            <div class="terms-wrapper" :class="{ 'has-error': hasError }">
+                <label class="terms-label">
+                    <span>Погоджуюсь з умовами сервісу</span>
+                    <input type="checkbox" v-model="isAgreed" class="terms-checkbox">
+                </label>
+            </div>
         </div>
 
-        <!-- Переклад -->
-        <div class="audio-slider">
-            <span class="audio-label">Переклад</span>
-
-            <input type="range" min="0" max="100" v-model="translatedVolume" class="range-slider" />
-
-            <span class="audio-percent">{{ translatedVolume }}%</span>
+        <div class="ver-nadFooter-login">
+            <button @click="handleAuth">Увійти через Google</button>
         </div>
     </div>
 
+    <div v-else-if="currentPanel === 2">
+        <div class="panel-2-hero-img__worldPanel2">
+            <img :src="worldPanel2" alt="world Panel 2">
+            <h2>Налаштуйте переклад</h2>
+        </div>
+        <div class="panel-2-main-ActiveMova">
+            <div class="panel-2-main-ActiveMova-Zmova">
+                <h2>З мови:</h2>
+                <select name="" id=""><option value="">Англійська</option><option value="">Українська</option></select>
+            </div>
+            <div class="panel-2-main-ActiveMova-Namova">
+                <h2>На мову:</h2>
+                <select name="" id=""><option value="">Українська</option><option value="">Англійська</option></select>
+            </div>
+            <div class="panel-2-main-radio-voice">
+                <h2>Голос ШІ:</h2>
+                <label><input type="radio" name="voice" value="voice1">Жіночий</label>
+                <label><input type="radio" name="voice" value="voice2"> Чоловічий</label>
+            </div>
+            <div class="">
+
+            </div>
+        </div>
+        <div class="panel-2-main-sound">
+
+        </div>
+
+
+        <div class="ver-centerInformation-notActiveMova">
+            <h2>З мови: Доступно</h2>
+            <h2>На мову: Доступно</h2>
+        </div>
+
+        <div class="ver-nadFooter-login">
+            <button @click="triggerStartTranslation" class="btn-action-green">Почати захоплення</button>
+
+            <button @click="triggerLogout" class="btn-logout">Вийти з акаунта</button>
+        </div>
+    </div>
+
+    <div v-else-if="currentPanel === 3">
+        <div class="ver-centerInformation-notActiveMova">
+            <h2 style="color: #1E7A57; text-align: center; padding-top: 15px;">Переклад активний...</h2>
+        </div>
+
+        <div class="ver-nadFooter-login">
+            <button @click="triggerStopTranslation" class="btn-stop">Зупинити переклад</button>
+
+            <button @click="triggerLogout" class="btn-logout">Вийти з акаунта</button>
+        </div>
+    </div>
+
+    <div class="ver-footer-container">
+        <div class="ver-footer-recklames">
+            <h3>Курси англійської зі знижкою 50%! <a href="#">Дізнатись більше -></a></h3>
+        </div>
+    </div>
 </template>
+
 <script>
 import logo from "../assets/logo.svg";
+import lockLogin from "../assets/lock-login.svg";
+import worldPanel2 from "../assets/World-translations.svg";
 import { ref, onMounted } from "vue";
 
 export default {
@@ -62,25 +105,33 @@ export default {
     data() {
         return {
             logo,
+            lockLogin,
+            worldPanel2,
         };
     },
 
     setup() {
-        const originalVolume = ref(100);
-        const translatedVolume = ref(100);
-        const showTranslationProgress = ref(false);
-        const message = "I am text of VerBoss";
-        const count = ref(0);
+        const nameLogo = "VerBoss";
         const isAuthenticated = ref(false);
-        const authUrl = "https://sponge-subzero-gating.ngrok-free.dev/login/google";
         const accessToken = ref("");
+        const isAgreed = ref(false);
+        const hasError = ref(false);
 
-        // Функція ініціації входу
+        // Нова змінна для керування панелями (1, 2 або 3)
+        const currentPanel = ref(1);
+
+        // Логіка авторизації
         const login = () => {
-            const AUTH_URL =
-                "https://sponge-subzero-gating.ngrok-free.dev/login/google";
+            if (!isAgreed.value) {
+                hasError.value = true;
+                setTimeout(() => {
+                    hasError.value = false;
+                }, 1500);
+                return;
+            }
 
-            // Викликаємо напряму, без зайвих перевірок, бо ми точно в розширенні
+            const AUTH_URL = "https://sponge-subzero-gating.ngrok-free.dev/login/google";
+
             chrome.identity.launchWebAuthFlow(
                 {
                     url: AUTH_URL,
@@ -88,52 +139,73 @@ export default {
                 },
                 (redirectUrl) => {
                     console.log("УРА! Ми отримали URL:", redirectUrl);
-
                     if (chrome.runtime.lastError) {
-                        console.error(
-                            "Помилка Identity API:",
-                            chrome.runtime.lastError.message,
-                        );
+                        console.error("Помилка Identity API:", chrome.runtime.lastError.message);
                         alert("Помилка Chrome: " + chrome.runtime.lastError.message);
                         return;
                     }
 
                     if (redirectUrl) {
                         console.log("Отримано Redirect URL:", redirectUrl);
-
                         const url = new URL(redirectUrl);
                         const token = url.searchParams.get("token");
                         if (token) {
                             chrome.storage.local.set({ access_token: token }, () => {
                                 isAuthenticated.value = true;
                                 accessToken.value = token;
-                                console.log("Авторизація успішна!");
+
+                                // Перемикаємо на другу панель після успішного входу!
+                                currentPanel.value = 2;
+                                console.log("Авторизація успішна, перехід на панель 2");
                             });
                         }
                     }
-                },
+                }
             );
         };
 
-        const logout = () => {
-            chrome.storage.local.remove("access_token", () => {
+        // Загальна функція виходу для 2 та 3 панелі
+        const triggerLogout = () => {
+            // Видаляємо і токен, і статус перекладу
+            chrome.storage.local.remove(["access_token", "is_translating"], () => {
                 accessToken.value = "";
                 isAuthenticated.value = false;
+                isAgreed.value = false; // Скидаємо чекбокс для безпеки
+
+                // Повертаємо на найпершу панель входу
+                currentPanel.value = 1;
+                console.log("Користувач вийшов, дані сховища очищено");
             });
         };
 
-        const increment = () => {
-            count.value++;
+        // Дія при натисканні "Почати захоплення"
+        const triggerStartTranslation = () => {
+            // Викликаємо твій фоновий скрипт перекладу
+            startTranslationBackground();
+
+            // Записуємо в сховище, що переклад запущено, і перемикаємо на панель 3
+            chrome.storage.local.set({ is_translating: true }, () => {
+                currentPanel.value = 3;
+                console.log("Статус перекладу збережено: true");
+            });
         };
 
-        const startTranslation = () => {
-            // Показуємо блок прогресу
-            showTranslationProgress.value = true;
-            // Перевіряємо, чи ми в середовищі розширення, щоб не було помилок при розробці
+        // Дія при натисканні "Зупинити переклад"
+        const triggerStopTranslation = () => {
+            console.log("Переклад зупинено");
+
+            // Записуємо в сховище, що переклад зупинено, і повертаємо на панель 2
+            chrome.storage.local.set({ is_translating: false }, () => {
+                currentPanel.value = 2;
+                console.log("Статус перекладу збережено: false");
+            });
+        };
+
+        // Твоя рідна функція зв'язку з фоновим скриптом хрому
+        const startTranslationBackground = () => {
             if (typeof chrome !== "undefined" && chrome.tabs) {
                 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
                     const activeTab = tabs[0];
-
                     chrome.runtime.sendMessage(
                         {
                             type: "START_TRANSCRIPTION",
@@ -141,42 +213,47 @@ export default {
                         },
                         (response) => {
                             console.log("Відповідь від фону:", response);
-                        },
+                        }
                     );
                 });
             } else {
-                console.error("Chrome API не знайдено. Ви запустіть це як розширення?");
+                console.error("Chrome API не знайдено. Запущено не як розширення?");
             }
         };
 
-        // Життєвий цикл: Монтування
+        // Перевірка сесії при відкритті розширення
         onMounted(async () => {
             if (typeof chrome !== "undefined" && chrome.storage) {
-                const result = await chrome.storage.local.get(["access_token"]);
+                // Запитуємо одночасно і токен, і статус активності перекладу
+                const result = await chrome.storage.local.get(["access_token", "is_translating"]);
                 if (result.access_token) {
                     accessToken.value = result.access_token;
                     isAuthenticated.value = true;
+                    // Розумна перевірка: куди саме перекидати користувача
+                    if (result.is_translating === true) {
+                        currentPanel.value = 3; // Переклад був активний — показуємо Панель 3
+                        console.log("Сесія відновлена: переклад триває, відкриваємо панель 3");
+                    } else {
+                        currentPanel.value = 2; // Переклад не запускали — показуємо Панель 2 (налаштування)
+                        console.log("Сесія відновлена: переклад неактивний, відкриваємо панель 2");
+                    }
                 }
             }
         });
 
         return {
-            logo,
-            message,
-            count,
-            increment,
+            nameLogo,
+            worldPanel2,
             isAuthenticated,
             accessToken,
-            authUrl,
+            isAgreed,
+            hasError,
+            currentPanel,
             handleAuth: login,
-            logout,
-            startTranslation,
-            showTranslationProgress,
-            originalVolume,
-            translatedVolume,
+            triggerLogout,
+            triggerStartTranslation,
+            triggerStopTranslation,
         };
     },
 };
 </script>
-
-<style scoped></style>
