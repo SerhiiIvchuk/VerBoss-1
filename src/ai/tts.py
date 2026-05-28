@@ -1,24 +1,25 @@
 import azure.cognitiveservices.speech as speechsdk
+import asyncio
+import os
 
-speech_config = speechsdk.SpeechConfig(
-    subscription="YourSpeechResourceKey",
-    region="eastus"
-)
+async def text_to_speech(text: str) -> bytes:
+    def _synthesize():
+        config = speechsdk.SpeechConfig(
+            subscription=os.getenv("AZURE_SPEECH_KEY"),
+            region=os.getenv("AZURE_SPEECH_REGION")
+        )
+        config.speech_synthesis_voice_name = "uk-UA-OstapNeural"
 
-# Вказати голос (для української мови)
-speech_config.speech_synthesis_voice_name = "uk-UA-PolinaNeural"
+        synthesizer = speechsdk.SpeechSynthesizer(
+            speech_config=config,
+            audio_config=None
+        )
 
-# Вивести у файл
-audio_config = speechsdk.audio.AudioOutputConfig(filename="output.wav")
+        result = synthesizer.speak_text_async(text).get()
 
-synthesizer = speechsdk.SpeechSynthesizer(
-    speech_config=speech_config,
-    audio_config=audio_config
-)
+        if result.reason != speechsdk.ResultReason.SynthesizingAudioCompleted:
+            raise RuntimeError(result.cancellation_details.error_details)
 
-result = synthesizer.speak_text_async("Привіт, це тест!").get()
+        return result.audio_data
 
-if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-    print("Успішно!")
-elif result.reason == speechsdk.ResultReason.Canceled:
-    print(f"Помилка: {result.cancellation_details.error_details}")
+    return await asyncio.to_thread(_synthesize)

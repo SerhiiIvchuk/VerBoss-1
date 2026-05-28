@@ -35,3 +35,4 @@ faster-whisper
 ffmpeg
 deep_translator
 azure-cognitiveservices-speech
+groq

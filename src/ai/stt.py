@@ -1,47 +1,29 @@
-from concurrent.futures import ThreadPoolExecutor
-
-from faster_whisper import WhisperModel
-
 import tempfile
 import asyncio
 import os
-
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from groq import Groq
 
 from ai.trasnlate import Translate
+from ai.tts import text_to_speech
 
-model = WhisperModel(
-    "small.en",
-    device="cpu",
-    compute_type="int8"
-)
+API_KEY = os.getenv("API_TOKEN")
 
-executor = ThreadPoolExecutor(max_workers=2)
+client = Groq(api_key=API_KEY)
 
 router = APIRouter()
 
-def transcribe_sync(path: str):
-    segments, info = model.transcribe(
-        path,
-        beam_size=2,
-        vad_filter=True
-    )
-    
-    text = " ".join(seg.text for seg in segments)
-
-    return {
-        "text": text,
-        "language": info.language,
-        "duration": info.duration
-    }
-
 async def transcribe_async(path: str):
-    loop = asyncio.get_event_loop()
+    def _transcribe():
+        with open(path, "rb") as f:
+            transcription = client.audio.transcriptions.create(
+                file=f,
+                model="whisper-large-v3",
+                language="en"
+            )
+        return {"text": transcription.text}
 
-    return await loop.run_in_executor(
-        executor,
-        lambda: transcribe_sync(path)
-    )
+    return await asyncio.to_thread(_transcribe)
 
 
 @router.websocket("/ws/stt")
@@ -67,17 +49,15 @@ async def websocket_stt(ws: WebSocket):
                     if tmp is None:
                         continue
                     tmp.close()
-                    print(f"Transcribing {path}...")
+
                     try:
-                        result = await transcribe_async(path)
-                        print("2")
-                        translated = await Translate(result["text"])
-                        print("3")
-                        verbalized_text = await Verbalize(translated)
-                        texttospeech = await TextToSpeech(verbalized_text)
-                        await ws.send_bytes(texttospeech)
+                        text = await transcribe_async(path)
+                        translated = await Translate(text["text"])
+                        audio = await text_to_speech(translated)
+                        await ws.send_bytes(audio)
                     except Exception as e:
                         print(f"Error: {e}")
+                        await ws.send_json({"error": str(e)})
                     finally:
                         tmp = None
                         path = None
@@ -98,3 +78,4 @@ async def websocket_stt(ws: WebSocket):
                 os.remove(path)
         except Exception:
             pass
+# реалізувати передачу інформації про кожну секунду
