@@ -86,38 +86,38 @@
     <div class="ver-centerInformation-notActiveMova">
       <h2 style="color: #1E7A57; text-align: center; padding-top: 15px;">Переклад активний...</h2>
     </div>
-          <!-- NEW: Контейнер панелі управління плеєром у Попапі -->
-      <div class="player-controls" style="
+    <!-- NEW: Контейнер панелі управління плеєром у Попапі -->
+    <div class="player-controls" style="
           margin-top: 15px;
           padding: 10px;
           border: 1px solid #ccc;
           border-radius: 5px;
         ">
-        <h4>Керування озвучкою</h4>
+      <h4>Керування озвучкою</h4>
 
-        <!-- NEW: Блок кнопок маніпуляцій відтворенням -->
-        <div style="margin-bottom: 10px">
-          <button @click="sendPlayerCommand('PLAY')">Відтворити</button>
-          <button @click="sendPlayerCommand('PAUSE')" style="margin: 0 5px">
-            Пауза
-          </button>
-          <button @click="sendPlayerCommand('REWIND')">На початок</button>
-        </div>
-
-        <!-- NEW: Повзунок керування оригінальною доріжкою відео -->
-        <div style="margin-bottom: 5px">
-          <label>Оригінал (EN): </label>
-          <input type="range" min="0" max="1" step="0.05" v-model="volOriginal" @input="updateVolume('ORIGINAL')" />
-          <span>{{ Math.round(volOriginal * 100) }}%</span>
-        </div>
-
-        <!-- NEW: Повзунок керування українською доріжкою перекладу -->
-        <div>
-          <label>Переклад (UA): </label>
-          <input type="range" min="0" max="1" step="0.05" v-model="volTranslated" @input="updateVolume('TRANSLATED')" />
-          <span>{{ Math.round(volTranslated * 100) }}%</span>
-        </div>
+      <!-- NEW: Блок кнопок маніпуляцій відтворенням -->
+      <div style="margin-bottom: 10px">
+        <button @click="sendPlayerCommand('PLAY')">Відтворити</button>
+        <button @click="sendPlayerCommand('PAUSE')" style="margin: 0 5px">
+          Пауза
+        </button>
+        <button @click="sendPlayerCommand('REWIND')">На початок</button>
       </div>
+
+      <!-- NEW: Повзунок керування оригінальною доріжкою відео -->
+      <div style="margin-bottom: 5px">
+        <label>Оригінал (EN): </label>
+        <input type="range" min="0" max="1" step="0.05" v-model="volOriginal" @input="updateVolume('ORIGINAL')" />
+        <span>{{ Math.round(volOriginal * 100) }}%</span>
+      </div>
+
+      <!-- NEW: Повзунок керування українською доріжкою перекладу -->
+      <div>
+        <label>Переклад (UA): </label>
+        <input type="range" min="0" max="1" step="0.05" v-model="volTranslated" @input="updateVolume('TRANSLATED')" />
+        <span>{{ Math.round(volTranslated * 100) }}%</span>
+      </div>
+    </div>
 
     <div class="ver-nadFooter-login">
       <button @click="triggerStopTranslation" class="btn-stop">Зупинити переклад</button>
