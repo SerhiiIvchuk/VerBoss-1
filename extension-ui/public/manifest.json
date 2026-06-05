@@ -24,7 +24,7 @@
                 "http://127.0.0.1:5500/*"
             ],
             "js": [
-                "content.js"
+                "content-loader.js"
             ]
         }
     ],
@@ -42,5 +42,16 @@
     },
     "content_security_policy": {
         "extension_pages": "script-src 'self'; object-src 'self'"
-    }
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "space_ua.mp3",
+                "content.js",
+                "assets/*",
+                "audioparts/*.mp3"
+            ],
+            "matches": ["https://*.youtube.com/*", "http://127.0.0.1:5500/*"]
+        }
+    ]
 }

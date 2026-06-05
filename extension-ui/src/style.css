@@ -4,18 +4,19 @@
 }
 
 :root {
-  --background-fon-modal: #0f1a17;
+  --background-fon-modal: #FFFFFF;
   /* /* --background-header-modal: #0a0920; */
   --background-btn-nadFooter: #1e7a57;
-  --color-btn-text-login: #e6f1ec;
+  --color-btn-text-login: #E6F1EC;
+  --color-text-black: #000000;
   --color-text-header: #5f6f68;
   --color-solid-bottom-header: #145a4169;
 }
 
 body {
-  width: 347px;
-  height: 264px;
-  border-radius: 25px;
+  width: 320px;
+  height: 220px;
+  border-radius: 4px;
   background-color: var(--background-fon-modal);
 }
 
@@ -70,7 +71,7 @@ body {
   font-size: 12px;
   line-height: 16px;
   letter-spacing: 0%;
-  color: var(--color-btn-text-login);
+  color: var(--color-text-black);
 }
 
 .ver-hero-login-text h3 {
@@ -98,7 +99,7 @@ body {
   font-size: 10px;
   line-height: 100%;
   letter-spacing: 0%;
-  color: var(--color-btn-text-login);
+  color: var(--color-text-black);
 }
 
 .terms-wrapper {
@@ -115,7 +116,7 @@ body {
   font-size: 10px;
   line-height: 100%;
   letter-spacing: 0%;
-  color: var(--color-btn-text-login);
+  color: var(--color-text-black);
 }
 
 .terms-checkbox {
@@ -170,7 +171,8 @@ body {
   padding-top: 10px;
   padding-left: 15px;
 }
-.ver-footer-recklames h3 {
+/*! =========================================== */
+/* .ver-footer-recklames h3 {
   padding-right: 5px;
   font-family: "Inter";
   font-weight: 200;
@@ -195,7 +197,7 @@ body {
   font-weight: 500;
   font-style: Regular;
   font-size: 10px;
-}
+} */
 
 /*! Panel 2 */
 
@@ -214,7 +216,7 @@ body {
   font-size: 12px;
   line-height: 100%;
   letter-spacing: 0%;
-  color: var(--color-btn-text-login);
+  color: var(--color-text-black);
 }
 
 /* ActiveMova */
@@ -238,7 +240,7 @@ body {
   font-size: 11px;
   line-height: 100%;
   letter-spacing: 0%;
-  color: var(--color-btn-text-login);
+  color: var(--color-text-black);
 }
 
 .panel-2-main-ActiveMova-Zmova select, .panel-2-main-ActiveMova-Namova select {
@@ -247,7 +249,7 @@ body {
   border: 1px solid var(--color-solid-bottom-header);
   border-radius: 5px;
   background-color: var(--background-fon-modal);
-  color: var(--color-btn-text-login);
+  color: var(--color-text-black);
   padding: 4px 8px;
   appearance: none;
   --webkit-appearance: none;
