@@ -2,17 +2,26 @@
 FROM python:3.11-slim
 
 # Встановлюємо системні залежності для коректної роботи bcrypt та sqlalchemy
+# RUN apt-get update && apt-get install -y \
+#     build-essential \
+#     libffi-dev \
+#     --no-install-recommends && \
+#     rm -rf /var/lib/apt/lists/*
+
+#FFMPEG для Whisper
+# RUN apt-get update && \
+#     apt-get install -y ffmpeg && \
+#     rm -rf /var/lib/apt/lists/*
+
+# Об'єднуємо всі системні залежності в один шар
 RUN apt-get update && apt-get install -y \
     build-essential \
     libffi-dev \
+    ffmpeg \
+    git \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
-
-#FFMPEG для Whisper
-RUN apt-get update && \
-    apt-get install -y ffmpeg && \
-    rm -rf /var/lib/apt/lists/*
-
+    
 # Встановлюємо робочу директорію
 WORKDIR /app
 
