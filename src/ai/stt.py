@@ -109,6 +109,19 @@ async def websocket_stt(ws: WebSocket):
 
                 await ws.send_json({
                     "type": "TRANSCRIPTION_RESULT",
+                    "target": "subtitles",
+                    "meta": {
+                        "videoId": meta.get("videoId"),
+                        "chunkId": chunk_id,
+                        "sequenceToken": meta.get("sequenceToken"),
+                        "startTime": start_time,
+                        "endTime": end_time,
+                    },
+                    "text": translated,
+                })
+                
+                await ws.send_json({
+                    "type": "TRANSCRIPTION_RESULT",
                     "target": "content",
                     "meta": {
                         "videoId": meta.get("videoId"),
