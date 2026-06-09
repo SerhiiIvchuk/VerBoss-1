@@ -58,6 +58,7 @@ async def websocket_stt(ws: WebSocket):
             end_time = float(meta.get("endTime", 0))
             target_duration = end_time - start_time
             target_lang = prefs.get("targetLanguage", "uk")
+            OnSubs = prefs.get("enableSubtitles")
             enable_translation = prefs.get("enableTranslation", True)
 
             try:
@@ -79,7 +80,6 @@ async def websocket_stt(ws: WebSocket):
                     input_path = tmp.name
 
                 text = await transcribe_async(input_path)
-                ws.send_text("Transcribing...")
                 if not text:
                     raise ValueError("Empty transcription")
 
@@ -106,7 +106,20 @@ async def websocket_stt(ws: WebSocket):
 
                 with open(synced_path, "rb") as f:
                     synced_b64 = base64.b64encode(f.read()).decode()
-
+                if OnSubs == True:
+                    await ws.send_json({
+                        "type": "TRANSCRIPTION_RESULT",
+                        "target": "subtitles",
+                        "meta": {
+                            "videoId": meta.get("videoId"),
+                            "chunkId": chunk_id,
+                            "sequenceToken": meta.get("sequenceToken"),
+                            "startTime": start_time,
+                            "endTime": end_time,
+                        },
+                        "text": translated,
+                    })
+                
                 await ws.send_json({
                     "type": "TRANSCRIPTION_RESULT",
                     "target": "content",
@@ -118,7 +131,7 @@ async def websocket_stt(ws: WebSocket):
                         "endTime": end_time,
                         "originalDuration": target_duration,
                         "generatedDuration": round(generated_duration, 3),
-                        "playbackSpeedFactor": round(generated_duration / target_duration, 3),
+                        "playbackSpeedFactor": round(generated_duration / target_duration, 3) if target_duration > 0 else 1.0,
                     },
                     "aiProfile": {
                         "stt": "whisper-large-v3",
