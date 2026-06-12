@@ -5,7 +5,7 @@ import os
 
 from groq import Groq
 
-from ai.stt import API_KEY
+API_KEY = os.getenv("API_TOKEN")
 
 # Azure
 async def text_to_speech(text: str) -> bytes:
