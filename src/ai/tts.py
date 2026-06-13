@@ -1,7 +1,13 @@
 import azure.cognitiveservices.speech as speechsdk
+
 import asyncio
 import os
 
+from groq import Groq
+
+API_KEY = os.getenv("API_TOKEN")
+
+# Azure
 async def text_to_speech(text: str) -> bytes:
     def _synthesize():
         config = speechsdk.SpeechConfig(
@@ -23,3 +29,17 @@ async def text_to_speech(text: str) -> bytes:
         return result.audio_data
 
     return await asyncio.to_thread(_synthesize)
+
+
+client = Groq(api_key=API_KEY)
+def ua_to_en(te: str):
+
+
+    response = client.audio.speech.create(
+        model="canopylabs/orpheus-v1-english",
+        voice="daniel",
+        input=te,
+        response_format="wav"
+    )
+
+    return response.read()

@@ -6,8 +6,8 @@ import base64
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from groq import Groq
 
-from ai.trasnlate import Translate
-from ai.tts import text_to_speech
+from ai.trasnlate import Translate_Ua_To_En, Translate_En_To_Ua
+from ai.tts import text_to_speech, ua_to_en
 from ai.sync import get_duration, stretch_audio
 
 API_KEY = os.getenv("API_TOKEN")
@@ -16,13 +16,13 @@ client = Groq(api_key=API_KEY)
 router = APIRouter()
 
 
-async def transcribe_async(path: str):
+async def transcribe_async(path: str, language: str = "en"):
     def _run():
         with open(path, "rb") as f:
             r = client.audio.transcriptions.create(
                 file=f,
                 model="whisper-large-v3",
-                language="en"
+                language=language
             )
         return r.text
 
@@ -57,7 +57,7 @@ async def websocket_stt(ws: WebSocket):
             start_time = float(meta.get("startTime", 0))
             end_time = float(meta.get("endTime", 0))
             target_duration = end_time - start_time
-            target_lang = prefs.get("targetLanguage", "uk")
+            target_lang = prefs.get("targetLanguage")
             OnSubs = prefs.get("enableSubtitles")
             enable_translation = prefs.get("enableTranslation", True)
 
@@ -79,17 +79,26 @@ async def websocket_stt(ws: WebSocket):
                     tmp.write(audio_bytes)
                     input_path = tmp.name
 
-                text = await transcribe_async(input_path)
+                text = await transcribe_async(input_path, target_lang)
                 if not text:
                     raise ValueError("Empty transcription")
 
                 translated = text
                 if enable_translation:
-                    translated = await Translate(text)
+                    if target_lang == "uk":
+                        translated = await Translate_En_To_Ua(text)
+                    elif target_lang == "en":
+                        translated = await Translate_Ua_To_En(text)
                     if not translated:
                         raise ValueError("Empty translation")
 
-                audio = await text_to_speech(translated)
+                if target_lang == "uk":
+                    audio = await text_to_speech(translated)
+                elif target_lang == "en":
+                    audio = await asyncio.to_thread(ua_to_en, translated)
+                else:
+                    raise ValueError(f"Unsupported targetLanguage: {target_lang}")
+
                 if not audio or len(audio) < 100:
                     raise ValueError("Invalid TTS audio")
 
