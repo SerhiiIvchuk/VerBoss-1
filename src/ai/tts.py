@@ -36,8 +36,8 @@ def ua_to_en(te: str):
 
 
     response = client.audio.speech.create(
-        model="canopylabs/orpheus-3b-0.1-ft",
-        voice="leah",
+        model="canopylabs/orpheus-v1-english",
+        voice="daniel",
         input=te,
         response_format="wav"
     )
