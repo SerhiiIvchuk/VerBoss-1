@@ -3,6 +3,8 @@ import asyncio
 import os
 import json
 import base64
+import subprocess
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from groq import Groq
 
@@ -16,17 +18,25 @@ client = Groq(api_key=API_KEY)
 router = APIRouter()
 
 
-async def transcribe_async(path: str, language: str = "en"):
+async def transcribe_async(path: str, language: str = "uk"):
     def _run():
         with open(path, "rb") as f:
             r = client.audio.transcriptions.create(
                 file=f,
                 model="whisper-large-v3",
-                language=language
+                response_format="verbose_json",
             )
-        return r.text
+        return r
 
-    return await asyncio.to_thread(_run)
+    r = await asyncio.to_thread(_run)
+
+    print("=== FULL TEXT ===")
+    print(r.text)
+    print("=== SEGMENTS ===")
+    for seg in r.segments:
+        print(f"[{seg['start']:.2f} - {seg['end']:.2f}] (no_speech_prob={seg.get('no_speech_prob', 'N/A')}): {seg['text']}")
+
+    return r.text
 
 
 @router.websocket("/ws/stt")
@@ -79,7 +89,10 @@ async def websocket_stt(ws: WebSocket):
                     tmp.write(audio_bytes)
                     input_path = tmp.name
 
-                text = await transcribe_async(input_path, target_lang)
+                import shutil       
+                shutil.copy(input_path, f"/tmp/debug_input_{chunk_id}.wav")
+                source_lang = "uk" if target_lang == "en" else "en"
+                text = await transcribe_async(input_path, source_lang)
                 if not text:
                     raise ValueError("Empty transcription")
 
@@ -107,7 +120,9 @@ async def websocket_stt(ws: WebSocket):
                     tts_tmp.write(audio)
                     tts_tmp.flush()
                     os.fsync(tts_tmp.fileno())
-
+                with open("/tmp/raw_tts.wav", "wb") as f:
+                    f.write(audio)
+                    print("RAW TTS duration:", get_duration(tts_path))
                 synced_path = tts_path.replace(".wav", "_synced.wav")
                 stretch_audio(tts_path, synced_path, target_duration)
 
@@ -127,6 +142,7 @@ async def websocket_stt(ws: WebSocket):
                             "endTime": end_time,
                         },
                         "text": translated,
+                        "org" : text
                     })
                 
                 await ws.send_json({
@@ -155,6 +171,7 @@ async def websocket_stt(ws: WebSocket):
                         "audioData": synced_b64,
                     },
                     "text": translated,
+                    "org" : text
                 })
 
             except Exception as e:

@@ -32,7 +32,7 @@ def build_atempo(ratio: float) -> str:
 
     while ratio < 0.5:
         filters.append("atempo=0.5")
-        ratio /= 0.5
+        ratio *= 2.0
 
     filters.append(f"atempo={ratio}")
 
@@ -46,28 +46,34 @@ def stretch_audio(input_path: str, output_path: str, target_duration: float):
         raise ValueError("Empty audio")
 
     ratio = target_duration / tts_duration
-    atempo = build_atempo(ratio)
 
-    # стретч
+    # Стискаємо/розтягуємо мову лише в м'якому діапазоні (0.7x - 1.5x),
+    # щоб не спотворювати голос
+    safe_ratio = max(0.7, min(1.5, ratio))
+
     stretched_tmp = input_path.replace(".wav", "_tmp.wav")
-    subprocess.run([
-        "ffmpeg", "-y",
-        "-i", input_path,
-        "-af", atempo,
-        stretched_tmp
-    ], check=True)
 
-    # hard trim/pad до точної тривалості
+    if abs(safe_ratio - 1.0) > 0.01:
+        atempo = build_atempo(safe_ratio)
+        subprocess.run([
+            "ffmpeg", "-y",
+            "-i", input_path,
+            "-af", atempo,
+            stretched_tmp
+        ], check=True)
+    else:
+        stretched_tmp = input_path  # без змін
+
+    # Доповнюємо тишею в кінці або обрізаємо, без зміни темпу мови
     subprocess.run([
         "ffmpeg", "-y",
         "-i", stretched_tmp,
-        "-af", (
-            f"apad=whole_dur={target_duration},"
-            f"atrim=end={target_duration},"
-            f"asetpts=PTS-STARTPTS"
-        ),
+        "-af", "apad",
+        "-t", f"{target_duration:.6f}",
         output_path
     ], check=True)
 
-    os.remove(stretched_tmp)
+    if stretched_tmp != input_path:
+        os.remove(stretched_tmp)
+
     return output_path
