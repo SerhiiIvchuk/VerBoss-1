@@ -1,10 +1,14 @@
 import azure.cognitiveservices.speech as speechsdk
 
 import asyncio
+import httpx
+
 import os
 
 from groq import Groq
 
+
+STYLETTS2 = os.getenv("STYLETTS2_URL")
 API_KEY = os.getenv("API_TOKEN")
 
 # Azure
@@ -43,3 +47,18 @@ def ua_to_en(te: str):
     )
 
     return response.read()
+
+async def tts2(text: str, voice: str = "Петро Філяк"):
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        response = await client.post(
+            f"{STYLETTS2}/v1/audio/speech",
+            json={
+                "model": "multi",
+                "input": text,
+                "voice": voice,
+                "speed": 1.0,
+                "verbalize": 1,
+            }
+        )
+        response.raise_for_status()
+        return response.content

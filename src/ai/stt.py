@@ -9,7 +9,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from groq import Groq
 
 from ai.trasnlate import Translate_Ua_To_En, Translate_En_To_Ua
-from ai.tts import text_to_speech, ua_to_en
+from ai.tts import tts2, ua_to_en
 from ai.sync import get_duration, stretch_audio
 
 API_KEY = os.getenv("API_TOKEN")
@@ -106,7 +106,7 @@ async def websocket_stt(ws: WebSocket):
                         raise ValueError("Empty translation")
 
                 if target_lang == "uk":
-                    audio = await text_to_speech(translated)
+                    audio = await tts2(translated)
                 elif target_lang == "en":
                     audio = await asyncio.to_thread(ua_to_en, translated)
                 else:
