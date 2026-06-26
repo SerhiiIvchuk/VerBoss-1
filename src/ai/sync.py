@@ -1,79 +1,136 @@
-import asyncio
+import json
 import subprocess
-import os
+from difflib import SequenceMatcher
+
 
 def get_duration(path: str) -> float:
     result = subprocess.run(
         [
             "ffprobe",
-            "-v", "error",
-            "-show_entries", "format=duration",
-            "-of", "default=noprint_wrappers=1:nokey=1",
-            path
+            "-v", "quiet",
+            "-print_format", "json",
+            "-show_format",
+            path,
         ],
         capture_output=True,
-        text=True
+        text=True,
+        check=True,
     )
 
-    value = result.stdout.strip()
-
-    if not value or value == "N/A":
-        raise RuntimeError(f"Invalid audio: {path}")
-
-    return float(value)
+    return float(json.loads(result.stdout)["format"]["duration"])
 
 
-def build_atempo(ratio: float) -> str:
-    filters = []
+def normalize(text: str) -> str:
+    return (
+        text.lower()
+        .replace(",", "")
+        .replace(".", "")
+        .replace("!", "")
+        .replace("?", "")
+        .replace(":", "")
+        .replace(";", "")
+        .replace('"', "")
+        .replace("'", "")
+        .strip()
+    )
 
-    while ratio > 2.0:
-        filters.append("atempo=2.0")
-        ratio /= 2.0
 
-    while ratio < 0.5:
-        filters.append("atempo=0.5")
-        ratio *= 2.0
+def align_segments(original_segments, tts_segments):
+    original = [normalize(x["text"]) for x in original_segments]
+    generated = [normalize(x["text"]) for x in tts_segments]
 
-    filters.append(f"atempo={ratio}")
+    matcher = SequenceMatcher(None, original, generated)
 
-    return ",".join(filters)
+    aligned = []
+
+    for tag, i1, i2, j1, j2 in matcher.get_opcodes():
+
+        if tag == "equal":
+            for o, t in zip(
+                original_segments[i1:i2],
+                tts_segments[j1:j2],
+            ):
+                aligned.append((o, t))
+
+        elif tag == "replace":
+            count = min(i2 - i1, j2 - j1)
+
+            for k in range(count):
+                aligned.append(
+                    (
+                        original_segments[i1 + k],
+                        tts_segments[j1 + k],
+                    )
+                )
+
+    return aligned
 
 
-def stretch_audio(input_path: str, output_path: str, target_duration: float):
-    tts_duration = get_duration(input_path)
+def build_timemap(
+    original_segments,
+    tts_segments,
+    sample_rate: int,
+    output_file: str,
+):
+    aligned = align_segments(
+        original_segments,
+        tts_segments,
+    )
 
-    if tts_duration <= 0:
-        raise ValueError("Empty audio")
+    with open(output_file, "w") as f:
 
-    ratio = target_duration / tts_duration
+        f.write("0 0\n")
 
-    # Стискаємо/розтягуємо мову лише в м'якому діапазоні (0.7x - 1.5x),
-    # щоб не спотворювати голос
-    safe_ratio = max(0.7, min(1.5, ratio))
+        for original, tts in aligned:
 
-    stretched_tmp = input_path.replace(".wav", "_tmp.wav")
+            f.write(
+                f"{int(tts['start'] * sample_rate)} "
+                f"{int(original['start'] * sample_rate)}\n"
+            )
 
-    if abs(safe_ratio - 1.0) > 0.01:
-        atempo = build_atempo(safe_ratio)
-        subprocess.run([
-            "ffmpeg", "-y",
-            "-i", input_path,
-            "-af", atempo,
-            stretched_tmp
-        ], check=True)
-    else:
-        stretched_tmp = input_path  # без змін
+            f.write(
+                f"{int(tts['end'] * sample_rate)} "
+                f"{int(original['end'] * sample_rate)}\n"
+            )
 
-    # Доповнюємо тишею в кінці або обрізаємо, без зміни темпу мови
-    subprocess.run([
-        "ffmpeg", "-y",
-        "-i", stretched_tmp,
-        "-af", "apad",
-        "-t", f"{target_duration:.6f}",
-        output_path
-    ], check=True)
+        tts_duration = tts_segments[-1]["end"]
+        original_duration = original_segments[-1]["end"]
 
-    if stretched_tmp != input_path:
-        os.remove(stretched_tmp)
+        f.write(
+            f"{int(tts_duration * sample_rate)} "
+            f"{int(original_duration * sample_rate)}\n"
+        )
 
-    return output_path
+
+def stretch_audio(
+    input_path: str,
+    output_path: str,
+    target_duration: float,
+    timemap: str | None = None,
+):
+    cmd = [
+        "rubberband",
+        "--fine",
+        "--duration",
+        str(target_duration),
+    ]
+
+    if timemap:
+        cmd.extend(
+            [
+                "--timemap",
+                timemap,
+            ]
+        )
+
+    cmd.extend(
+        [
+            input_path,
+            output_path,
+        ]
+    )
+
+    subprocess.run(
+        cmd,
+        check=True,
+    )
