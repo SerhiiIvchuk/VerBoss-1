@@ -1,4 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 class UserAddSchema(BaseModel):
-    id_token: str
+    google_id: str
+    email: EmailStr
+    full_name: str | None = None
+    picture: str | None = None

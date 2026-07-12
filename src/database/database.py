@@ -6,8 +6,12 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 from typing import Annotated
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:////app/data/startup.db")
-engine = create_async_engine(DATABASE_URL)
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=True,
+    pool_pre_ping=True,
+)
 Base = declarative_base()
 
 

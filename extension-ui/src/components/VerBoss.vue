@@ -296,8 +296,9 @@ export default {
 
     // Функція ініціації входу
     const login = () => {
+      console.log(chrome.identity.getRedirectURL());
       const AUTH_URL =
-        "https://sponge-subzero-gating.ngrok-free.dev/login/google";
+        "https://sherill-carpellary-fulgently.ngrok-free.dev/login/google";
 
       // Викликаємо напряму, без зайвих перевірок, бо ми точно в розширенні
       chrome.identity.launchWebAuthFlow(

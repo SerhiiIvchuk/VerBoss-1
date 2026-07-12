@@ -68,7 +68,7 @@ async def get_all_users(session: SessionDep):
 # 3.2 Додавання нового юзера
 @app.post("/add_new_user")
 async def add_new_user(user: UserAddSchema, session: SessionDep):
-    return list(Base.metadata.tables.keys())
+    pass
 
 # 3.3 тестовий ендпоінт щоб перевірити айпі користувача
 @app.get("/get_ip")
