@@ -296,7 +296,7 @@ export default {
 
     // Функція ініціації входу
     const login = () => {
-      console.log(chrome.identity.getRedirectURL());
+
       const AUTH_URL =
         "https://sherill-carpellary-fulgently.ngrok-free.dev/login/google";
 
