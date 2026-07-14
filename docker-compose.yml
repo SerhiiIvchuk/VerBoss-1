@@ -12,13 +12,13 @@ services:
     volumes:
       # Прокидаємо локальну папку src у внутрішню папку /app
       - ./src:/app
-      # База даних залишається окремо
-      - ./data:/app/data
       # Захист venv
       - /app/venv/
     env_file:
       - .env
     restart: unless-stopped
+    depends_on:
+      - db
   nginx:
     image: nginx:latest
     container_name: nginx_proxy
@@ -54,7 +54,23 @@ services:
     depends_on:
       gradio:
         condition: service_healthy 
-
+  db:
+    image: postgres:17
+    container_name: postgres_db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
 networks:
   internal:
     driver: bridge
+
+volumes:
+  postgres_data:

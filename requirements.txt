@@ -9,6 +9,7 @@ pydantic-settings==2.1.0
 # Робота з базою даних (Асинхронна SQLite)
 sqlalchemy[asyncio]==2.0.25
 aiosqlite
+asyncpg
 
 # Робота з формами та файлами
 python-multipart==0.0.9
